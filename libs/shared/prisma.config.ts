@@ -1,4 +1,4 @@
-// apps/user-service/prisma.config.ts
+// libs/shared/prisma.config.ts
 
 import 'dotenv/config';
 import { defineConfig } from 'prisma/config';

@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client"
-  output        = "../src/generated/prisma"
+  output        = "../src/lib/generated/prisma"
   moduleFormat  = "cjs"
 }
 
@@ -30,4 +30,20 @@ model User {
 enum UserRole {
   STAFF
   ADMIN
+}
+
+
+model Attendance {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  date       DateTime
+  check_in   DateTime?
+  check_out  DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([user_id, date])
+  @@unique([user_id, date])
+  @@map("attendances")
 }

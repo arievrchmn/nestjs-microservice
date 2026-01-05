@@ -1,7 +1,7 @@
 // apps/user-service/src/prisma.service.ts
 
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from './generated/prisma/client';
+import { PrismaClient } from '@nestjs-microservice/shared';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { ConfigService } from '@nestjs/config';
 

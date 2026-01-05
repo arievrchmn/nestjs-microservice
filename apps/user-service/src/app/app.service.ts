@@ -3,8 +3,8 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
-import { User as UserModel } from '../generated/prisma/client';
-import { StringFilter } from '../generated/prisma/commonInputTypes';
+import { User as UserModel } from '@nestjs-microservice/shared';
+import { StringFilter } from '@nestjs-microservice/shared';
 
 @Injectable()
 export class AppService {
