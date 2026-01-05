@@ -6,6 +6,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth/auth.controller';
 import { AdminEmployeeController } from './admin/employee.controller';
 
+export const jwtSecret = process.env.JWT_SECRET || 'defaultSecretKey';
+
 @Module({
   imports: [
     ClientsModule.register([
@@ -27,7 +29,7 @@ import { AdminEmployeeController } from './admin/employee.controller';
       },
     ]),
     JwtModule.register({
-      secret: 'your_jwt_secret_key',
+      secret: jwtSecret,
       signOptions: { expiresIn: '1d' },
     }),
   ],

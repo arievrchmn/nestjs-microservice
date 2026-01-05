@@ -1,9 +1,12 @@
 // apps/api-gateway/src/app/admin/admin.controller.ts
 
-import { Controller, Post, Body, Inject, Param, Patch, Delete, Get, Query, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, Inject, Param, Patch, Delete, Get, Query, HttpCode, UseGuards } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { AuthGuard } from '../guards/auth.guard';
+import { RoleGuard } from '../guards/role.guard';
 
+@UseGuards(AuthGuard, RoleGuard)
 @Controller('admin')
 export class AdminEmployeeController {
   constructor(@Inject('USER_SERVICE') private readonly userClient: ClientProxy) {}
@@ -16,7 +19,7 @@ export class AdminEmployeeController {
 
   @Get('employees')
   @HttpCode(200)
-  async findAllEmployees(@Query() query: { page?: string; limit?: string }) {
+  async findAllEmployees(@Query() query: { page?: string; limit?: string; search?: string }) {
     return await firstValueFrom(this.userClient.send('users.find_all', query));
   }
 
