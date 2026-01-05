@@ -4,6 +4,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
 import { User as UserModel } from '../generated/prisma/client';
+import { StringFilter } from '../generated/prisma/commonInputTypes';
 
 @Injectable()
 export class AppService {
@@ -38,17 +39,24 @@ export class AppService {
     }
   }
 
-  async findAllUsers(query: { page?: string; limit?: string }) {
+  async findAllUsers(query: { page?: string; limit?: string; search?: string }) {
     try {
       const page = Math.max(1, Number(query.page || 1));
       const limit = Math.min(Number(query.limit || 10), 50);
       const skip = (page - 1) * limit;
 
+      const conditions: any = {
+        is_active: true,
+      };
+      if (query.search) {
+        conditions.name = {
+          contains: query.search,
+        } as StringFilter;
+      }
+
       const [users, total] = await this.prisma.$transaction([
         this.prisma.user.findMany({
-          where: {
-            is_active: true,
-          },
+          where: conditions,
           skip,
           take: limit,
           select: {
@@ -62,9 +70,7 @@ export class AppService {
             position: true,
           },
         }),
-        this.prisma.user.count({
-          where: { is_active: true },
-        }),
+        this.prisma.user.count({ where: conditions }),
       ]);
 
       return {
