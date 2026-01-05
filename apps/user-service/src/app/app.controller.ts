@@ -3,7 +3,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
-import { User as UserModel } from '../generated/prisma/client';
+import { User as UserModel } from '@nestjs-microservice/shared';
 
 @Controller()
 export class AppController {

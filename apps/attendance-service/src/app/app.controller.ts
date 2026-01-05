@@ -1,12 +1,28 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getData() {
-    return this.appService.getData();
+  @MessagePattern('attendance.today')
+  today(@Payload() payload: { user_id: number }) {
+    return this.appService.today(payload);
+  }
+
+  @MessagePattern('attendance.check_in')
+  checkIn(@Payload() payload: { user_id: number }) {
+    return this.appService.checkIn(payload);
+  }
+
+  @MessagePattern('attendance.check_out')
+  checkOut(@Payload() payload: { user_id: number }) {
+    return this.appService.checkOut(payload);
+  }
+
+  @MessagePattern('attendance.summary')
+  summary(@Payload() payload: any) {
+    return this.appService.summary(payload);
   }
 }

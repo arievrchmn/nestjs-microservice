@@ -46,7 +46,9 @@
     "@prisma/client": "^7.2.0",
     "axios": "^1.6.0",
     "bcrypt": "^6.0.0",
+    "dayjs": "^1.11.19",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.0"
+    "rxjs": "^7.8.0",
+    "tsx": "^4.21.0"
   }
 }
