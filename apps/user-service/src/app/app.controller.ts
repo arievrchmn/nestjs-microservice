@@ -5,6 +5,9 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import { User as UserModel } from '@nestjs-microservice/shared';
 
+// DTOs
+import type { FindEmployeeRequestDTO } from '@nestjs-microservice/shared';
+
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -15,8 +18,8 @@ export class AppController {
   }
 
   @MessagePattern('users.find_all')
-  findAllUsers(@Payload() payload: any) {
-    return this.appService.findAllUsers(payload);
+  findAllUser(@Payload() dto: FindEmployeeRequestDTO) {
+    return this.appService.findAllUser(dto);
   }
 
   @MessagePattern('user.update')

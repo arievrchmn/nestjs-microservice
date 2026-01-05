@@ -5,7 +5,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth/auth.controller';
 import { AdminEmployeeController } from './admin/employee.controller';
-import { AttendanceController } from './attendance/attendance.controller';
+import { StaffAttendanceController } from './staff/attendance.controller';
+import { AdminAttendanceController } from './admin/attendance.controller';
 
 export const jwtSecret = process.env.JWT_SECRET || 'defaultSecretKey';
 
@@ -42,6 +43,6 @@ export const jwtSecret = process.env.JWT_SECRET || 'defaultSecretKey';
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  controllers: [AuthController, AdminEmployeeController, AttendanceController],
+  controllers: [AuthController, AdminEmployeeController, AdminAttendanceController, StaffAttendanceController],
 })
 export class AppModule {}

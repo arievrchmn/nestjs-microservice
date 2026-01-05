@@ -4,11 +4,11 @@ import { firstValueFrom } from 'rxjs';
 import { AuthGuard } from '../guards/auth.guard';
 
 @UseGuards(AuthGuard)
-@Controller('attendance')
-export class AttendanceController {
+@Controller('staff')
+export class StaffAttendanceController {
   constructor(@Inject('ATTENDANCE_SERVICE') private readonly attendanceClient: ClientProxy) {}
 
-  @Get('today')
+  @Get('attendance/today')
   @HttpCode(200)
   async today(@Req() req: any) {
     const payload = {
@@ -17,7 +17,7 @@ export class AttendanceController {
     return await firstValueFrom(this.attendanceClient.send('attendance.today', payload));
   }
 
-  @Post('check-in')
+  @Post('attendance/check-in')
   @HttpCode(200)
   async checkIn(@Req() req: any) {
     const payload = {
@@ -26,7 +26,7 @@ export class AttendanceController {
     return await firstValueFrom(this.attendanceClient.send('attendance.check_in', payload));
   }
 
-  @Post('check-out')
+  @Post('attendance/check-out')
   @HttpCode(200)
   async checkOut(@Req() req: any) {
     const payload = {
@@ -35,7 +35,7 @@ export class AttendanceController {
     return await firstValueFrom(this.attendanceClient.send('attendance.check_out', payload));
   }
 
-  @Get('summary')
+  @Get('attendance/summary')
   @HttpCode(200)
   async getSummary(
     @Req() req: any,

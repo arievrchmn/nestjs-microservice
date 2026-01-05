@@ -3,8 +3,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
-import { User as UserModel } from '@nestjs-microservice/shared';
-import { StringFilter } from '@nestjs-microservice/shared';
+
+// DTOs
+import { FilterEmployee, FindEmployeeRequestDTO, User as UserModel } from '@nestjs-microservice/shared';
 
 @Injectable()
 export class AppService {
@@ -39,25 +40,29 @@ export class AppService {
     }
   }
 
-  async findAllUsers(query: { page?: string; limit?: string; search?: string }) {
+  async findAllUser(dto: FindEmployeeRequestDTO) {
+    // Parse query params
+    const page = Math.max(1, Number(dto.page || 1));
+    const limit = Math.min(Number(dto.limit || 10), 100);
+    const skip = (page - 1) * limit;
+
+    // Create filter
+    const filters = {} as FilterEmployee;
+    if (dto.name) {
+      filters.name = dto.name;
+    }
+    if (dto.position) {
+      filters.position = dto.position;
+    }
+
     try {
-      const page = Math.max(1, Number(query.page || 1));
-      const limit = Math.min(Number(query.limit || 10), 50);
-      const skip = (page - 1) * limit;
-
-      const conditions: any = {
-        is_active: true,
-      };
-      if (query.search) {
-        conditions.name = {
-          contains: query.search,
-        } as StringFilter;
-      }
-
       const [users, total] = await this.prisma.$transaction([
         this.prisma.user.findMany({
-          where: conditions,
-          skip,
+          where: {
+            is_active: true,
+            ...filters,
+          },
+          skip: skip,
           take: limit,
           select: {
             id: true,
@@ -70,7 +75,12 @@ export class AppService {
             position: true,
           },
         }),
-        this.prisma.user.count({ where: conditions }),
+        this.prisma.user.count({
+          where: {
+            is_active: true,
+            ...filters,
+          },
+        }),
       ]);
 
       return {

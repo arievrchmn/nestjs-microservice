@@ -2,6 +2,9 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 
+// DTOs
+import type { FindAttendanceRequestDTO } from '@nestjs-microservice/shared';
+
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -24,5 +27,10 @@ export class AppController {
   @MessagePattern('attendance.summary')
   summary(@Payload() payload: any) {
     return this.appService.summary(payload);
+  }
+
+  @MessagePattern('attendance.find_all')
+  findAllAttendance(@Payload() dto: FindAttendanceRequestDTO) {
+    return this.appService.findAllAttendance(dto);
   }
 }

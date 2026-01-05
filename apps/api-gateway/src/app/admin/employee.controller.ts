@@ -6,6 +6,9 @@ import { firstValueFrom } from 'rxjs';
 import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuard } from '../guards/role.guard';
 
+// DTOs
+import type { FindEmployeeRequestDTO } from '@nestjs-microservice/shared';
+
 @UseGuards(AuthGuard, RoleGuard)
 @Controller('admin')
 export class AdminEmployeeController {
@@ -19,8 +22,8 @@ export class AdminEmployeeController {
 
   @Get('employees')
   @HttpCode(200)
-  async findAllEmployees(@Query() query: { page?: string; limit?: string; search?: string }) {
-    return await firstValueFrom(this.userClient.send('users.find_all', query));
+  async findAllEmployee(@Query() dto: FindEmployeeRequestDTO) {
+    return await firstValueFrom(this.userClient.send('users.find_all', dto));
   }
 
   @Patch('employees/:id')
