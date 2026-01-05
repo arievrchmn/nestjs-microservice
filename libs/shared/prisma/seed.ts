@@ -1,5 +1,12 @@
 import { PrismaClient } from '../src/lib/generated/prisma/client';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+import * as bcrypt from 'bcrypt';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const prisma = new PrismaClient({
   adapter: new PrismaMariaDb({
@@ -11,51 +18,66 @@ const prisma = new PrismaClient({
   }),
 });
 
-function startOfDay(date: Date) {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-// Generate random time offset in milliseconds
-function randomTimeOffset(startHour: number, endHour: number) {
+function getRandomTimeOnDate(baseDate: Date, startHour: number, endHour: number) {
   const hour = startHour + Math.floor(Math.random() * (endHour - startHour + 1));
   const minute = Math.floor(Math.random() * 60);
   const second = Math.floor(Math.random() * 60);
-  const date = new Date();
-  date.setHours(hour, minute, second, 0);
-  return date;
+
+  const dateStr = dayjs(baseDate).format('YYYY-MM-DD');
+  return dayjs.tz(`${dateStr} ${hour}:${minute}:${second}`, 'Asia/Jakarta').utc().toDate();
 }
 
 async function main() {
-  const userIds = [1]; // example users
-  const startDate = new Date(2026, 0, 1); // Jan 1, 2026
-  const endDate = new Date(); // today
+  const userIds = [1];
+  const currentDate = dayjs().utc().year(2026).month(0).date(1).startOf('day');
+  const today = dayjs().format('YYYY-MM-DD');
+  const endDate = dayjs.utc(today).startOf('day');
+
+  const password = 'password123';
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await prisma.user.create({
+    data: {
+      email: 'jhondoe@mail.com',
+      password: hashedPassword,
+      role: 'ADMIN',
+      name: 'Jhon Doe',
+      phone: '+6212345678',
+      photo_url: '',
+      position: 'ADMIN',
+    },
+  });
 
   for (const user_id of userIds) {
-    let currentDate = startDate;
-    while (currentDate <= endDate) {
-      const date = startOfDay(currentDate);
-      const check_in = randomTimeOffset(8, 9); // 08:00 - 10:00
-      const check_out = randomTimeOffset(17, 18); // 16:00 - 18:00
+    let loopDate = currentDate;
 
-      await prisma.attendance.create({
-        data: {
-          user_id,
-          date,
-          check_in,
-          check_out,
-        },
-      });
+    while (loopDate.isBefore(endDate) || loopDate.isSame(endDate)) {
+      const dateRecord = loopDate.toDate();
 
-      // next day
-      currentDate = new Date(currentDate);
-      currentDate.setDate(currentDate.getDate() + 1);
+      const check_in = getRandomTimeOnDate(dateRecord, 8, 9);
+      const check_out = getRandomTimeOnDate(dateRecord, 17, 18);
+
+      try {
+        await prisma.attendance.create({
+          data: {
+            user_id,
+            date: dateRecord,
+            check_in,
+            check_out,
+          },
+        });
+        console.log(`Success: User ${user_id} on ${loopDate.format('YYYY-MM-DD')}`);
+      } catch {
+        console.error(`Skip: Data already exists for ${loopDate.format('YYYY-MM-DD')}`);
+      }
+
+      loopDate = loopDate.add(1, 'day');
     }
   }
 
   console.log('Seeding completed!');
 }
+
 main()
   .then(async () => {
     await prisma.$disconnect();
