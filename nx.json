@@ -21,7 +21,7 @@
           "watchDepsName": "watch-deps"
         }
       },
-      "exclude": ["libs/firebase/*"]
+      "exclude": ["libs/shared/*", "libs/firebase/*"]
     },
     {
       "plugin": "@nx/webpack/plugin",
@@ -42,7 +42,7 @@
     },
     {
       "plugin": "@nx/js/typescript",
-      "include": ["libs/firebase/*"],
+      "include": ["libs/firebase/*", "libs/shared/*"],
       "options": {
         "typecheck": {
           "targetName": "typecheck"
@@ -50,9 +50,6 @@
       }
     }
   ],
-  "tui": {
-    "enabled": false
-  },
   "targetDefaults": {
     "@nx/js:tsc": {
       "cache": true,
