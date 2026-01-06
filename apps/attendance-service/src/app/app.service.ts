@@ -50,7 +50,7 @@ export class AppService {
       status: 'success',
       data: {
         attendance,
-        can_check_in: false,
+        can_check_in: !!(!attendance.check_in && !attendance.check_out),
         can_check_out: !!(attendance.check_in && !attendance.check_out),
       },
     };

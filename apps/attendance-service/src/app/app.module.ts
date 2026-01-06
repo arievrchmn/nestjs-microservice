@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: 'apps/attendance-service/.env',
     }),
   ],
   controllers: [AppController],

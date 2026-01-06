@@ -9,27 +9,27 @@ import type { FindAttendanceRequestDTO } from '@nestjs-microservice/shared';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern('attendance.today')
+  @MessagePattern('attendance.staff.today')
   today(@Payload() payload: { user_id: number }) {
     return this.appService.today(payload);
   }
 
-  @MessagePattern('attendance.check_in')
+  @MessagePattern('attendance.staff.check_in')
   checkIn(@Payload() payload: { user_id: number }) {
     return this.appService.checkIn(payload);
   }
 
-  @MessagePattern('attendance.check_out')
+  @MessagePattern('attendance.staff.check_out')
   checkOut(@Payload() payload: { user_id: number }) {
     return this.appService.checkOut(payload);
   }
 
-  @MessagePattern('attendance.summary')
+  @MessagePattern('attendance.staff.summary')
   summary(@Payload() payload: any) {
     return this.appService.summary(payload);
   }
 
-  @MessagePattern('attendance.find_all')
+  @MessagePattern('attendance.admin.find_all')
   findAllAttendance(@Payload() dto: FindAttendanceRequestDTO) {
     return this.appService.findAllAttendance(dto);
   }
