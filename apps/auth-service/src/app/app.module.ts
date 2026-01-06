@@ -3,6 +3,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
 
 export const jwtSecret = process.env.JWT_SECRET || 'defaultSecretKey';
 
@@ -18,6 +19,10 @@ export const jwtSecret = process.env.JWT_SECRET || 'defaultSecretKey';
         },
       },
     ]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: 'apps/auth-service/.env',
+    }),
     JwtModule.register({
       secret: jwtSecret,
       signOptions: { expiresIn: '1d' },
