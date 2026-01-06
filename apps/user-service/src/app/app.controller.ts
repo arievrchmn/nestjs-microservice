@@ -24,11 +24,11 @@ export class AppController {
   @MessagePattern('user.admin.update')
   updateUser(@Payload() payload: UpdateUserRequestDTO & { id: string }) {
     const { id, ...updateData } = payload;
-    const data: UpdateUserRequestDTO & { id: number } = {
+    const data = {
       id: Number(id),
       ...updateData,
     };
-    return this.appService.updateUser(data);
+    return this.appService.updateUser({ ...data, send_notification: false });
   }
 
   @MessagePattern('user.admin.deactivate')
@@ -47,9 +47,7 @@ export class AppController {
   }
 
   @MessagePattern('user.staff.update_profile')
-  updateUserProfile(
-    @Payload() payload: { token?: string; id: number; photo_url?: string; phone?: string; password?: string }
-  ) {
-    return this.appService.updateUser(payload);
+  updateUserProfile(@Payload() payload: { id: number; photo_url?: string; phone?: string; password?: string }) {
+    return this.appService.updateUser({ ...payload, send_notification: true });
   }
 }

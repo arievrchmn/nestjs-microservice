@@ -9,6 +9,8 @@ import { StaffAttendanceController } from './staff/attendance.controller';
 import { AdminAttendanceController } from './admin/attendance.controller';
 import { ConfigModule } from '@nestjs/config';
 import { StaffProfileController } from './staff/profile.controller';
+import { AdminSubController } from './admin/sub.controller';
+import { NestjsMicroserviceFirebaseModule } from '@nestjs-microservice/firebase';
 
 export const jwtSecret = process.env.JWT_SECRET || 'defaultSecretKey';
 
@@ -48,11 +50,13 @@ export const jwtSecret = process.env.JWT_SECRET || 'defaultSecretKey';
       secret: jwtSecret,
       signOptions: { expiresIn: '1d' },
     }),
+    NestjsMicroserviceFirebaseModule,
   ],
   controllers: [
     AuthController,
     AdminUserController,
     AdminAttendanceController,
+    AdminSubController,
     StaffAttendanceController,
     StaffProfileController,
   ],

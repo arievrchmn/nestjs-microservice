@@ -13,6 +13,11 @@ import {
 } from '@nestjs-microservice/shared';
 import { FirebaseService } from '@nestjs-microservice/firebase';
 
+type UpdateUserPayload = UpdateUserRequestDTO & {
+  id: number;
+  send_notification?: boolean;
+};
+
 @Injectable()
 export class AppService {
   constructor(
@@ -110,12 +115,13 @@ export class AppService {
     }
   }
 
-  async updateUser(payload: UpdateUserRequestDTO & { id: number } & { token?: string }) {
-    const { id, token, password, ...updateData } = payload;
+  async updateUser(payload: UpdateUserPayload) {
+    const { id, password, send_notification, ...updateData } = payload;
     try {
       const user = await this.prisma.user.findUnique({
         where: { id },
         select: {
+          id: true,
           name: true,
           is_active: true,
         },
@@ -131,16 +137,37 @@ export class AppService {
         hashedPassword = await bcrypt.hash(password, 10);
       }
 
-      await this.prisma.user.update({
+      const updated = await this.prisma.user.update({
         where: { id },
         data: {
           ...updateData,
           ...(password && { password: hashedPassword }),
         },
+        select: {
+          id: true,
+          name: true,
+        },
       });
 
-      if (token) {
-        await this.firebase.sendToToken(token, 'Notifikasi', `User ${user.name} melakukan perubahan pada profile`);
+      if (send_notification) {
+        try {
+          await this.firebase.sendToTopic(
+            'admin_profile_changes',
+            'Profil Karyawan Diperbarui',
+            `${updated.name} mengubah profil`,
+            {
+              type: 'profile_update',
+              user_id: updated.id.toString(),
+              timestamp: new Date().toISOString(),
+            }
+          );
+        } catch (error) {
+          console.error('Failed to send notification:', {
+            userId: user.id,
+            userName: user.name,
+            error: error,
+          });
+        }
       }
 
       return { status: 'success', message: 'User updated successfully', data: null, meta: null };
