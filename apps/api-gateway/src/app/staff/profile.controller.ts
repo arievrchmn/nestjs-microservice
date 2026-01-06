@@ -1,7 +1,12 @@
+// apps/api-gateway/src/app/staff/profile.controller.ts
+
 import { Controller, Inject, HttpCode, UseGuards, Body, Patch, Get, Req } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { AuthGuard } from '../guards/auth.guard';
+
+// DTOs
+import type { UpdateProfileRequestDTO } from '@nestjs-microservice/shared';
 
 @UseGuards(AuthGuard)
 @Controller('staff')
@@ -17,11 +22,9 @@ export class StaffProfileController {
 
   @Patch('profile')
   @HttpCode(200)
-  async updateProfile(
-    @Req() req: any,
-    @Body() body: { token?: string; photoUrl?: string; phone?: string; password?: string }
-  ) {
-    const user_id = req.user.id;
-    return await firstValueFrom(this.userClient.send('user.staff.update_profile', { id: user_id, ...body }));
+  async updateProfile(@Req() req: any, @Body() dto: UpdateProfileRequestDTO) {
+    const id = req.user.id;
+    const updated_by = req.user.id;
+    return await firstValueFrom(this.userClient.send('user.staff.update_profile', { ...dto, id, updated_by }));
   }
 }

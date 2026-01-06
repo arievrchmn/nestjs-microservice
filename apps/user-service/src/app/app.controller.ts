@@ -5,7 +5,12 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 
 // DTOs
-import type { CreateUserRequestDTO, FindUserRequestDTO, UpdateUserRequestDTO } from '@nestjs-microservice/shared';
+import type {
+  CreateUserRequestDTO,
+  FindUserRequestDTO,
+  UpdateUserRequestDTO,
+  UpdateProfileRequestDTO,
+} from '@nestjs-microservice/shared';
 
 @Controller()
 export class AppController {
@@ -22,13 +27,8 @@ export class AppController {
   }
 
   @MessagePattern('user.admin.update')
-  updateUser(@Payload() payload: UpdateUserRequestDTO & { id: string }) {
-    const { id, ...updateData } = payload;
-    const data = {
-      id: Number(id),
-      ...updateData,
-    };
-    return this.appService.updateUser({ ...data, send_notification: false });
+  updateUser(@Payload() dto: UpdateUserRequestDTO & { id: number; updated_by: string }) {
+    return this.appService.updateUser({ ...dto, send_notification: false });
   }
 
   @MessagePattern('user.admin.deactivate')
@@ -47,7 +47,7 @@ export class AppController {
   }
 
   @MessagePattern('user.staff.update_profile')
-  updateUserProfile(@Payload() payload: { id: number; photo_url?: string; phone?: string; password?: string }) {
+  updateUserProfile(@Payload() payload: UpdateProfileRequestDTO & { id: number; updated_by: string }) {
     return this.appService.updateUser({ ...payload, send_notification: true });
   }
 }

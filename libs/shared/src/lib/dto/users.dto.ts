@@ -10,7 +10,7 @@ export interface CreateUserRequestDTO {
   position: string;
   phone: string;
   role?: Role;
-  photoUrl?: string;
+  photo_url?: string;
 }
 
 export interface FindUserRequestDTO {
@@ -32,5 +32,11 @@ export interface UpdateUserRequestDTO {
   position?: string;
   phone?: string;
   role?: Role;
-  photoUrl?: string;
+  photo_url?: string;
+}
+
+export interface UpdateProfileRequestDTO {
+  photo_url?: string;
+  phone?: string;
+  password?: string;
 }

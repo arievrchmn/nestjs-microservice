@@ -33,7 +33,7 @@ async function main() {
   const today = dayjs().format('YYYY-MM-DD');
   const endDate = dayjs.utc(today).startOf('day');
 
-  const password = 'password123';
+  const password = 'jhondoe123';
   const hashedPassword = await bcrypt.hash(password, 10);
 
   await prisma.user.create({
@@ -44,7 +44,7 @@ async function main() {
       name: 'Jhon Doe',
       phone: '+6212345678',
       photo_url: '',
-      position: 'ADMIN',
+      position: 'HRD',
     },
   });
 

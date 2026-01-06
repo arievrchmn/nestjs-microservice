@@ -20,6 +20,9 @@
     },
     {
       "path": "./libs/firebase"
+    },
+    {
+      "path": "./apps/log-service"
     }
   ]
 }

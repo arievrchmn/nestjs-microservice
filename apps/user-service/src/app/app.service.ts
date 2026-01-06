@@ -1,6 +1,6 @@
 // apps/user-service/src/app/app.service.ts
 
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
 
@@ -12,15 +12,18 @@ import {
   UpdateUserRequestDTO,
 } from '@nestjs-microservice/shared';
 import { FirebaseService } from '@nestjs-microservice/firebase';
+import { ClientProxy } from '@nestjs/microservices';
 
-type UpdateUserPayload = UpdateUserRequestDTO & {
+type UpdateUserDTO = UpdateUserRequestDTO & {
   id: number;
+  updated_by: string;
   send_notification?: boolean;
 };
 
 @Injectable()
 export class AppService {
   constructor(
+    @Inject('LOGGING_SERVICE') private loggingClient: ClientProxy,
     private prisma: PrismaService,
     private firebase: FirebaseService
   ) {}
@@ -35,7 +38,7 @@ export class AppService {
           role: payload.role || 'STAFF',
           name: payload.name,
           phone: payload.phone,
-          photo_url: payload.photoUrl,
+          photo_url: payload.photo_url,
           position: payload.position,
         },
       });
@@ -115,8 +118,8 @@ export class AppService {
     }
   }
 
-  async updateUser(payload: UpdateUserPayload) {
-    const { id, password, send_notification, ...updateData } = payload;
+  async updateUser(dto: UpdateUserDTO) {
+    const { id, updated_by, password, send_notification, ...updateData } = dto;
     try {
       const user = await this.prisma.user.findUnique({
         where: { id },
@@ -148,6 +151,17 @@ export class AppService {
           name: true,
         },
       });
+
+      try {
+        this.loggingClient.emit('log.update_user', {
+          userId: updated.id,
+          userName: updated.name,
+          changes: updateData,
+          updatedBy: updated_by,
+        });
+      } catch (error) {
+        console.error('Failed to send to RabbitMQ:', error);
+      }
 
       if (send_notification) {
         try {

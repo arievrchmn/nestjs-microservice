@@ -1,6 +1,19 @@
 // apps/api-gateway/src/app/admin/user.controller.ts
 
-import { Controller, Post, Body, Inject, Param, Patch, Delete, Get, Query, HttpCode, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Inject,
+  Param,
+  Patch,
+  Delete,
+  Get,
+  Query,
+  HttpCode,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { AuthGuard } from '../guards/auth.guard';
@@ -28,8 +41,9 @@ export class AdminUserController {
 
   @Patch('employees/:id')
   @HttpCode(200)
-  async updateEmployee(@Body() body: UpdateUserRequestDTO, @Param('id') id: string) {
-    return await firstValueFrom(this.userClient.send('user.admin.update', { ...body, id }));
+  async updateEmployee(@Req() req: any, @Body() body: UpdateUserRequestDTO, @Param('id') id: string) {
+    const updated_by = req.user.id;
+    return await firstValueFrom(this.userClient.send('user.admin.update', { ...body, id: Number(id), updated_by }));
   }
 
   @Delete('employees/:id')

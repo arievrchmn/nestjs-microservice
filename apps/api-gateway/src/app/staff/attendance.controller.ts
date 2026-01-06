@@ -1,3 +1,5 @@
+// apps/api-gateway/src/app/staff/attendance.controller.ts
+
 import { Controller, Inject, HttpCode, Get, UseGuards, Req, Post, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -42,8 +44,8 @@ export class StaffAttendanceController {
     @Query() query: { page?: string; limit?: string; start_date?: string; end_date?: string }
   ) {
     const payload = {
-      user_id: req.user.id,
       ...query,
+      user_id: req.user.id,
     };
     return await firstValueFrom(this.attendanceClient.send('attendance.staff.summary', payload));
   }
