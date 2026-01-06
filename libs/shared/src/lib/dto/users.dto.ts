@@ -3,35 +3,34 @@ export enum Role {
   STAFF = 'STAFF',
 }
 
-export interface CreateEmployeeDTO {
+export interface CreateUserRequestDTO {
   name: string;
   email: string;
   password: string;
-  role: Role;
   position: string;
-  phone?: string;
+  phone: string;
+  role?: Role;
   photoUrl?: string;
 }
 
-export interface FindEmployeeRequestDTO {
+export interface FindUserRequestDTO {
   page?: number;
   limit?: string;
   name?: string;
   position?: string;
 }
 
-export interface FilterEmployee {
+export interface FilterUser {
   name?: string;
   position?: string;
 }
 
-export interface UpdateEmployeeDTO {
-  id?: number;
+export interface UpdateUserRequestDTO {
   name?: string;
   email?: string;
   password?: string;
-  role?: Role;
-  position: string;
+  position?: string;
   phone?: string;
+  role?: Role;
   photoUrl?: string;
 }
