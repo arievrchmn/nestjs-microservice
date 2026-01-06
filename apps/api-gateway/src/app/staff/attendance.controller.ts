@@ -42,7 +42,7 @@ export class StaffAttendanceController {
     @Query() query: { page?: string; limit?: string; start_date?: string; end_date?: string }
   ) {
     const payload = {
-      user_id: req.user_id,
+      user_id: req.user.id,
       ...query,
     };
     return await firstValueFrom(this.attendanceClient.send('attendance.summary', payload));

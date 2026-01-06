@@ -1,3 +1,5 @@
+// apps/api-gateway/src/app/admin/attendance.controller.ts
+
 import { Controller, Inject, HttpCode, Get, UseGuards, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';

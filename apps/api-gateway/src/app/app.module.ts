@@ -4,9 +4,11 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth/auth.controller';
-import { AdminEmployeeController } from './admin/employee.controller';
+import { AdminUserController } from './admin/user.controller';
 import { StaffAttendanceController } from './staff/attendance.controller';
 import { AdminAttendanceController } from './admin/attendance.controller';
+import { ConfigModule } from '@nestjs/config';
+import { StaffProfileController } from './staff/profile.controller';
 
 export const jwtSecret = process.env.JWT_SECRET || 'defaultSecretKey';
 
@@ -38,11 +40,21 @@ export const jwtSecret = process.env.JWT_SECRET || 'defaultSecretKey';
         },
       },
     ]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: 'apps/api-gateway/.env',
+    }),
     JwtModule.register({
       secret: jwtSecret,
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  controllers: [AuthController, AdminEmployeeController, AdminAttendanceController, StaffAttendanceController],
+  controllers: [
+    AuthController,
+    AdminUserController,
+    AdminAttendanceController,
+    StaffAttendanceController,
+    StaffProfileController,
+  ],
 })
 export class AppModule {}
