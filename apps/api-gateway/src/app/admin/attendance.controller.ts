@@ -17,6 +17,6 @@ export class AdminAttendanceController {
   @Get('attendances')
   @HttpCode(200)
   async findAllAttendance(@Query() dto: FindAttendanceRequestDTO) {
-    return await firstValueFrom(this.attendanceClient.send('attendance.find_all', dto));
+    return await firstValueFrom(this.attendanceClient.send('attendance.admin.find_all', dto));
   }
 }

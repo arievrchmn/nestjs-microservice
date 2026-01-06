@@ -14,7 +14,7 @@ export class StaffAttendanceController {
     const payload = {
       user_id: req.user.id,
     };
-    return await firstValueFrom(this.attendanceClient.send('attendance.today', payload));
+    return await firstValueFrom(this.attendanceClient.send('attendance.staff.today', payload));
   }
 
   @Post('attendance/check-in')
@@ -23,7 +23,7 @@ export class StaffAttendanceController {
     const payload = {
       user_id: req.user.id,
     };
-    return await firstValueFrom(this.attendanceClient.send('attendance.check_in', payload));
+    return await firstValueFrom(this.attendanceClient.send('attendance.staff.check_in', payload));
   }
 
   @Post('attendance/check-out')
@@ -32,7 +32,7 @@ export class StaffAttendanceController {
     const payload = {
       user_id: req.user.id,
     };
-    return await firstValueFrom(this.attendanceClient.send('attendance.check_out', payload));
+    return await firstValueFrom(this.attendanceClient.send('attendance.staff.check_out', payload));
   }
 
   @Get('attendance/summary')
@@ -45,6 +45,6 @@ export class StaffAttendanceController {
       user_id: req.user.id,
       ...query,
     };
-    return await firstValueFrom(this.attendanceClient.send('attendance.summary', payload));
+    return await firstValueFrom(this.attendanceClient.send('attendance.staff.summary', payload));
   }
 }
