@@ -43,3 +43,4 @@ Thumbs.db
 
 .env
 **/generated/prisma
+**/firebase-service-account.json
