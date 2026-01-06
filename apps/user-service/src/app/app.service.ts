@@ -5,20 +5,29 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
 
 // DTOs
-import { FilterEmployee, FindEmployeeRequestDTO, User as UserModel } from '@nestjs-microservice/shared';
+import {
+  CreateUserRequestDTO,
+  FilterUser,
+  FindUserRequestDTO,
+  UpdateUserRequestDTO,
+} from '@nestjs-microservice/shared';
+import { FirebaseService } from '@nestjs-microservice/firebase';
 
 @Injectable()
 export class AppService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private firebase: FirebaseService
+  ) {}
 
-  async createUser(payload: any) {
+  async createUser(payload: CreateUserRequestDTO) {
     try {
       const hashedPassword = await bcrypt.hash(payload.password, 10);
       await this.prisma.user.create({
         data: {
           email: payload.email,
           password: hashedPassword,
-          role: payload.role,
+          role: payload.role || 'STAFF',
           name: payload.name,
           phone: payload.phone,
           photo_url: payload.photoUrl,
@@ -40,14 +49,14 @@ export class AppService {
     }
   }
 
-  async findAllUser(dto: FindEmployeeRequestDTO) {
+  async findAllUser(dto: FindUserRequestDTO) {
     // Parse query params
     const page = Math.max(1, Number(dto.page || 1));
     const limit = Math.min(Number(dto.limit || 10), 100);
     const skip = (page - 1) * limit;
 
     // Create filter
-    const filters = {} as FilterEmployee;
+    const filters = {} as FilterUser;
     if (dto.name) {
       filters.name = dto.name;
     }
@@ -99,10 +108,15 @@ export class AppService {
     }
   }
 
-  async updateUser(id: number, updateData: Partial<UserModel>) {
+  async updateUser(payload: UpdateUserRequestDTO & { id: number } & { token?: string }) {
+    const { id, token, ...updateData } = payload;
     try {
       const user = await this.prisma.user.findUnique({
         where: { id },
+        select: {
+          name: true,
+          is_active: true,
+        },
       });
 
       if (!user || !user.is_active) {
@@ -113,6 +127,10 @@ export class AppService {
         where: { id },
         data: updateData,
       });
+
+      if (token) {
+        await this.firebase.sendToToken(token, 'Notifikasi', `User ${user.name} melakukan perubahan pada profile`);
+      }
 
       return { status: 'success', message: 'User updated successfully', data: null, meta: null };
     } catch {
@@ -172,5 +190,24 @@ export class AppService {
     } catch {
       return { status: 'error', code: HttpStatus.INTERNAL_SERVER_ERROR, message: 'An unexpected error occurred' };
     }
+  }
+
+  async getUserProfile(user_id: number) {
+    const user = await this.prisma.user.findFirst({
+      where: { id: user_id },
+      select: {
+        name: true,
+        email: true,
+        position: true,
+        phone: true,
+        photo_url: true,
+      },
+    });
+
+    if (!user) {
+      return { status: 'error', code: HttpStatus.NOT_FOUND, message: 'User not found', data: null, meta: null };
+    }
+
+    return { status: 'success', code: HttpStatus.OK, message: 'User retrieved successfully', data: user };
   }
 }

@@ -3,39 +3,53 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
-import { User as UserModel } from '@nestjs-microservice/shared';
 
 // DTOs
-import type { FindEmployeeRequestDTO } from '@nestjs-microservice/shared';
+import type { CreateUserRequestDTO, FindUserRequestDTO, UpdateUserRequestDTO } from '@nestjs-microservice/shared';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern('user.create')
-  createUser(@Payload() payload: any) {
+  @MessagePattern('user.admin.create')
+  createUser(@Payload() payload: CreateUserRequestDTO) {
     return this.appService.createUser(payload);
   }
 
-  @MessagePattern('users.find_all')
-  findAllUser(@Payload() dto: FindEmployeeRequestDTO) {
+  @MessagePattern('user.admin.find_all')
+  findAllUser(@Payload() dto: FindUserRequestDTO) {
     return this.appService.findAllUser(dto);
   }
 
-  @MessagePattern('user.update')
-  updateUser(@Payload() payload: any) {
+  @MessagePattern('user.admin.update')
+  updateUser(@Payload() payload: UpdateUserRequestDTO & { id: string }) {
     const { id, ...updateData } = payload;
-    return this.appService.updateUser(parseInt(id), updateData as Partial<UserModel>);
+    const data: UpdateUserRequestDTO & { id: number } = {
+      id: Number(id),
+      ...updateData,
+    };
+    return this.appService.updateUser(data);
   }
 
-  @MessagePattern('user.deactivate')
-  deactivateUser(@Payload() payload: any) {
-    const { id } = payload;
-    return this.appService.deactivateUser(parseInt(id));
+  @MessagePattern('user.admin.deactivate')
+  deactivateUser(@Payload() id: string) {
+    return this.appService.deactivateUser(Number(id));
   }
 
   @MessagePattern('user.auth.find_by_email')
-  findAuthUserByEmail(email: string) {
+  findAuthUserByEmail(@Payload() email: string) {
     return this.appService.findAuthUserByEmail(email);
+  }
+
+  @MessagePattern('user.staff.get_profile')
+  getUserProfile(@Payload() user_id: number) {
+    return this.appService.getUserProfile(user_id);
+  }
+
+  @MessagePattern('user.staff.update_profile')
+  updateUserProfile(
+    @Payload() payload: { token?: string; id: number; photo_url?: string; phone?: string; password?: string }
+  ) {
+    return this.appService.updateUser(payload);
   }
 }
