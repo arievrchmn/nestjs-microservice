@@ -58,7 +58,9 @@ export class AppService {
     // Create filter
     const filters = {} as FilterUser;
     if (dto.name) {
-      filters.name = dto.name;
+      filters.name = {
+        contains: dto.name,
+      };
     }
     if (dto.position) {
       filters.position = dto.position;

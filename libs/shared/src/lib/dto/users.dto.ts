@@ -21,7 +21,7 @@ export interface FindUserRequestDTO {
 }
 
 export interface FilterUser {
-  name?: string;
+  name?: any;
   position?: string;
 }
 
