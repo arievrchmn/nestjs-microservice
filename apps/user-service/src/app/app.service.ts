@@ -109,7 +109,7 @@ export class AppService {
   }
 
   async updateUser(payload: UpdateUserRequestDTO & { id: number } & { token?: string }) {
-    const { id, token, ...updateData } = payload;
+    const { id, token, password, ...updateData } = payload;
     try {
       const user = await this.prisma.user.findUnique({
         where: { id },
@@ -123,9 +123,18 @@ export class AppService {
         return { status: 'error', code: HttpStatus.NOT_FOUND, message: 'User not found' };
       }
 
+      let hashedPassword: string | undefined;
+
+      if (password) {
+        hashedPassword = await bcrypt.hash(password, 10);
+      }
+
       await this.prisma.user.update({
         where: { id },
-        data: updateData,
+        data: {
+          ...updateData,
+          ...(password && { password: hashedPassword }),
+        },
       });
 
       if (token) {
