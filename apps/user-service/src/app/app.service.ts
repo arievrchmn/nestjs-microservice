@@ -178,11 +178,11 @@ export class AppService {
 
   async deactivateUser(id: number) {
     try {
-      const user = await this.prisma.user.findUnique({
+      const isUserExists = await this.prisma.user.findUnique({
         where: { id },
       });
 
-      if (!user || !user.is_active) {
+      if (!isUserExists || !isUserExists.is_active) {
         return { status: 'error', code: HttpStatus.NOT_FOUND, message: 'User not found' };
       }
 
