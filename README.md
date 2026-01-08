@@ -12,11 +12,11 @@ An employee attendance system built with microservice architecture using NX and 
        │ HTTP
        ▼
 ┌─────────────┐
-│ API Gateway │──> RabbitMQ ──┐
-└─────────────┘               ├──> User Service
-                              ├──> Auth Service
-                              ├──> Attendance Service
-                              └──> Log Service
+│ API Gateway │──> RabbitMQ+TCP   ──┐
+└─────────────┘                     ├──> User Service
+                                    ├──> Auth Service
+                                    ├──> Attendance Service
+                                    └──> Log Service
 ```
 
 Microservice architecture with:
@@ -97,7 +97,7 @@ nestjs-microservice/
 
 ### Prerequisites
 
-- Node.js >= 18
+- Node.js >= 20 (higher recommended)
 - MySQL/MariaDB
 - MongoDB (for log-service)
 - RabbitMQ
@@ -135,6 +135,11 @@ JWT_SECRET=your-secret-key
 
 # MongoDB (log-service)
 MONGODB_URI=mongodb://localhost:27017/logs
+
+# Firebase
+FIREBASE_PROJECT_ID=YOUR_FIREBASE_PROJECT_ID
+FIREBASE_PRIVATE_KEY=FIREBASE_PRIVATE_KEY
+FIREBASE_CLIENT_EMAIL=FIREBASE_CLIENT_EMAIL
 ```
 
 ### Running Services
@@ -147,8 +152,8 @@ npx nx serve auth-service
 npx nx serve attendance-service
 npx nx serve log-service
 
-# Build all
-npx nx run-many -t build
+# Run all
+npx nx run-many -t serve
 ```
 
 ## 📚 API Endpoints
@@ -156,35 +161,33 @@ npx nx run-many -t build
 ### Authentication
 
 ```
-POST /auth/login                    # Login
-POST /auth/register                 # Register (staff)
+POST api/auth/login                    # Login
 ```
 
 ### Staff Endpoints
 
 ```
-GET  /staff/profile                 # Get own profile
-PUT  /staff/profile                 # Update own profile
-GET  /staff/attendance/today        # Today's attendance
-POST /staff/attendance/check-in     # Check in
-POST /staff/attendance/check-out    # Check out
-GET  /staff/attendance/summary      # Attendance history
+GET  api/staff/profile                 # Get own profile
+PUT  api/staff/profile                 # Update own profile
+GET  api/staff/attendance/today        # Today's attendance
+POST api/staff/attendance/check-in     # Check in
+POST api/staff/attendance/check-out    # Check out
+GET  api/staff/attendance/summary      # Attendance history
 ```
 
 ### Admin Endpoints
 
 ```
-GET    /admin/employees             # List all employees
-POST   /admin/employees             # Create employee
-GET    /admin/employees/:id         # Get employee detail
-PATCH  /admin/employees/:id         # Update employee
-DELETE /admin/employees/:id         # Delete employee
-GET    /admin/attendances           # All attendances with filters
+GET    api/admin/employees             # List all employees
+POST   api/admin/employees             # Create employee
+PATCH  api/admin/employees/:id         # Update employee
+DELETE api/admin/employees/:id         # Delete employee (deactive)
+GET    api/admin/attendances           # All attendances with filters (default today)
 ```
 
 ## 🔐 Authentication
 
-All endpoints (except `/auth/login` and `/auth/register`) require JWT token:
+All endpoints (except `api/auth/login`) require JWT token:
 
 ```bash
 Authorization: Bearer <jwt-token>
@@ -192,8 +195,8 @@ Authorization: Bearer <jwt-token>
 
 Role-based access:
 
-- `STAFF`: Access to `/staff/*` endpoints
-- `ADMIN`: Access to `/admin/*` and `/staff/*` endpoints
+- `STAFF`: Access to `api/staff/*` endpoints
+- `ADMIN`: Access to `api/admin/*` and `api/staff/*` endpoints
 
 ## 📝 Database Schema
 
@@ -202,7 +205,7 @@ model User {
   id          Int       @id @default(autoincrement())
   email       String    @unique
   password    String
-  role        UserRole  @default(STAFF)
+  role        UserRole
   name        String
   phone       String?
   position    String
