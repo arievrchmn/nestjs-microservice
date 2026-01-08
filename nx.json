@@ -21,7 +21,7 @@
           "watchDepsName": "watch-deps"
         }
       },
-      "exclude": ["libs/shared/*", "libs/firebase/*"]
+      "exclude": ["libs/firebase/*"]
     },
     {
       "plugin": "@nx/webpack/plugin",

@@ -62,7 +62,7 @@ nestjs-microservice/
 - Entry point for all HTTP requests
 - Routes to microservices via RabbitMQ
 - Authentication guard & role-based access control
-- Endpoints: `/auth`, `/staff`, `/admin`
+- Endpoints: `api/auth`, `api/staff`, `api/admin`
 
 ### User Service
 
@@ -105,14 +105,25 @@ nestjs-microservice/
 ### Installation
 
 ```bash
-# Install dependencies
+1. Install dependencies
 npm install
 
-# Generate Prisma Client
-npx prisma generate --schema=libs/shared/prisma/schema.prisma
+2. Set up env vars for each service
 
-# Run database migrations
-npx prisma migrate dev --schema=libs/shared/prisma/schema.prisma
+3. Run docker container
+docker compose up -d
+
+4. Move to shared directory
+cd ./libs/shared
+
+5. Generate prisma client
+npx prisma generate
+
+6. Run database migrations
+npx prisma migrate dev
+
+7. Run seed
+npx prisma db seed
 ```
 
 ### Environment Variables

@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { PrismaClient } from '../src/lib/generated/prisma/client';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import * as bcrypt from 'bcrypt';
