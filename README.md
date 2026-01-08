@@ -1,90 +1,225 @@
-# NestjsMicroservice
+# NestJS Microservice - Employee Attendance System
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+An employee attendance system built with microservice architecture using NX and NestJS.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
-
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-
-## Finish your remote caching setup
-
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/vOFavH8jd5)
-
-
-## Generate a library
-
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
-
-## Run tasks
-
-To build the library use:
-
-```sh
-npx nx build pkg1
-```
-
-To run any task with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+## 🏗️ Architecture Overview
 
 ```
-npx nx release
+┌─────────────┐
+│   Clients   │
+│ (Web/Mobile)│
+└──────┬──────┘
+       │ HTTP
+       ▼
+┌─────────────┐
+│ API Gateway │──> RabbitMQ ──┐
+└─────────────┘               ├──> User Service
+                              ├──> Auth Service
+                              ├──> Attendance Service
+                              └──> Log Service
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+Microservice architecture with:
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **API Gateway** as single entry point
+- **RabbitMQ + TCP** for inter-service communication
+- **Shared database** for development ease (to be split per service)
+- **Prisma ORM** for database access
+- **Firebase** for push notifications
 
-## Keep TypeScript project references up to date
+## 🛠️ Tech Stack
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+- **Framework**: NestJS 11
+- **Monorepo**: Nx
+- **Message Broker**: RabbitMQ (via @nestjs/microservices)
+- **Database**: MySQL/MariaDB
+- **ORM**: Prisma 7
+- **Authentication**: JWT
+- **Notifications**: Firebase Admin SDK
+- **Language**: TypeScript
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+## 📁 Project Structure
 
-```sh
-npx nx sync
+```
+nestjs-microservice/
+├── apps/
+│   ├── api-gateway/          # HTTP entry point, routes to services
+│   ├── user-service/         # User management (CRUD, profiles)
+│   ├── auth-service/         # Authentication & authorization
+│   ├── attendance-service/   # Check-in/out, attendance tracking
+│   └── log-service/          # Activity logging with MongoDB
+├── libs/
+│   ├── shared/               # Shared Prisma schema, DTOs, types
+│   └── firebase/             # Firebase notification utilities
+└── prisma/
+    └── schema.prisma         # Shared database schema
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+## 🎯 Services
 
-```sh
-npx nx sync:check
+### API Gateway
+
+- Entry point for all HTTP requests
+- Routes to microservices via RabbitMQ
+- Authentication guard & role-based access control
+- Endpoints: `/auth`, `/staff`, `/admin`
+
+### User Service
+
+- User CRUD operations
+- Profile management
+- Employee data
+- Pattern: `user.*`
+
+### Auth Service
+
+- Login & JWT token generation
+- Token validation
+- Password hashing with bcrypt
+- Pattern: `auth.*`
+
+### Attendance Service
+
+- Check-in/check-out functionality
+- Daily attendance tracking
+- Attendance summary & reports
+- Date-based filtering
+- Pattern: `attendance.*`
+
+### Log Service
+
+- Activity logging with MongoDB
+- Audit trail for all operations
+- Firebase push notifications
+- Pattern: `log.*`
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js >= 18
+- MySQL/MariaDB
+- MongoDB (for log-service)
+- RabbitMQ
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Generate Prisma Client
+npx prisma generate --schema=libs/shared/prisma/schema.prisma
+
+# Run database migrations
+npx prisma migrate dev --schema=libs/shared/prisma/schema.prisma
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+### Environment Variables
 
+Each service requires environment variables:
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```env
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=3306
+DATABASE_USER=root
+DATABASE_PASSWORD=password
+DATABASE_NAME=attendance_db
 
-## Install Nx Console
+# RabbitMQ
+RABBITMQ_URL=amqp://localhost:5672
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+# JWT (auth-service)
+JWT_SECRET=your-secret-key
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# MongoDB (log-service)
+MONGODB_URI=mongodb://localhost:27017/logs
+```
 
-## Useful links
+### Running Services
 
-Learn more:
+```bash
+# Run specific service
+npx nx serve api-gateway
+npx nx serve user-service
+npx nx serve auth-service
+npx nx serve attendance-service
+npx nx serve log-service
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# Build all
+npx nx run-many -t build
+```
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 📚 API Endpoints
+
+### Authentication
+
+```
+POST /auth/login                    # Login
+POST /auth/register                 # Register (staff)
+```
+
+### Staff Endpoints
+
+```
+GET  /staff/profile                 # Get own profile
+PUT  /staff/profile                 # Update own profile
+GET  /staff/attendance/today        # Today's attendance
+POST /staff/attendance/check-in     # Check in
+POST /staff/attendance/check-out    # Check out
+GET  /staff/attendance/summary      # Attendance history
+```
+
+### Admin Endpoints
+
+```
+GET    /admin/employees             # List all employees
+POST   /admin/employees             # Create employee
+GET    /admin/employees/:id         # Get employee detail
+PATCH  /admin/employees/:id         # Update employee
+DELETE /admin/employees/:id         # Delete employee
+GET    /admin/attendances           # All attendances with filters
+```
+
+## 🔐 Authentication
+
+All endpoints (except `/auth/login` and `/auth/register`) require JWT token:
+
+```bash
+Authorization: Bearer <jwt-token>
+```
+
+Role-based access:
+
+- `STAFF`: Access to `/staff/*` endpoints
+- `ADMIN`: Access to `/admin/*` and `/staff/*` endpoints
+
+## 📝 Database Schema
+
+```prisma
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String
+  role        UserRole  @default(STAFF)
+  name        String
+  phone       String?
+  position    String
+  attendances Attendance[]
+}
+
+model Attendance {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  date       DateTime
+  check_in   DateTime?
+  check_out  DateTime?
+  user       User      @relation(fields: [user_id], references: [id])
+}
+
+enum UserRole {
+  STAFF
+  ADMIN
+}
+```
