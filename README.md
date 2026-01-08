@@ -62,7 +62,7 @@ nestjs-microservice/
 - Entry point for all HTTP requests
 - Routes to microservices via RabbitMQ
 - Authentication guard & role-based access control
-- Endpoints: `/auth`, `/staff`, `/admin`
+- Endpoints: `api/auth`, `api/staff`, `api/admin`
 
 ### User Service
 
